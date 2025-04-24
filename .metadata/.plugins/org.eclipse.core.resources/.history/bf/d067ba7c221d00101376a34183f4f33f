@@ -1,0 +1,15 @@
+package com.dealer.model;
+
+import java.time.LocalDateTime;
+
+public class payment {
+	
+	 private int transactionId;
+	    private int dealerId;
+	    private int cropId;
+	    private double amount;
+	    private String status; 
+	    private LocalDateTime time = LocalDateTime.now();
+
+	    
+}

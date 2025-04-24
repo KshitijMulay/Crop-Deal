@@ -1,0 +1,5 @@
+package com.dealer.repo;
+
+public interface paymentRepo extends  {
+
+}

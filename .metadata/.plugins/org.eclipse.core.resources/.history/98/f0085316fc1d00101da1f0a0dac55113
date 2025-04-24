@@ -1,0 +1,40 @@
+package com.notify.controller;
+
+
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.MimeMessage;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.web.bind.annotation.*;
+
+import com.notify.model.NotificationPayload;
+
+@RestController
+@RequestMapping("/notify")
+public class NotificationController {
+
+	@Autowired
+	private JavaMailSender mailSender;
+
+	@PostMapping("/dealer")
+	public ResponseEntity<String> notifyDealers(@RequestBody NotificationPayload payload) {
+		try {
+			MimeMessage message = mailSender.createMimeMessage();
+			MimeMessageHelper helper = new MimeMessageHelper(message, true);
+
+			helper.setSubject(payload.getSubject());
+			helper.setText(payload.getBody(), true);
+			helper.setFrom("your-email@example.com");
+			for (String email : payload.getTo()) {
+				helper.addBcc(email);
+			}
+
+			mailSender.send(message);
+			return ResponseEntity.ok("Notification sent to all dealers");
+		} catch (MessagingException e) {
+			return ResponseEntity.status(500).body("Failed to send notification: " + e.getMessage());
+		}
+	}
+}

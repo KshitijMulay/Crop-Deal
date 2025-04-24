@@ -1,0 +1,128 @@
+package com.payment.model;
+
+import jakarta.persistence.*;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.Objects;
+
+@Entity
+public class Payment {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private int transactionId;
+
+    private int dealerId;
+    private int cropId;
+
+    @Column(nullable = false, precision = 10, scale = 2)
+    private BigDecimal amount;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Status status;
+
+    private LocalDateTime time;
+
+    public Payment() {
+        // Default constructor
+    }
+
+    public Payment(int transactionId, int dealerId, int cropId, BigDecimal amount, Status status, LocalDateTime time) {
+        this.transactionId = transactionId;
+        this.dealerId = dealerId;
+        this.cropId = cropId;
+        this.amount = amount;
+        this.status = status;
+        this.time = time;
+    }
+
+    @PrePersist
+    protected void onCreate() {
+        this.time = LocalDateTime.now();
+    }
+
+    // Getters and Setters
+
+    public int getTransactionId() {
+        return transactionId;
+    }
+
+    public void setTransactionId(int transactionId) {
+        this.transactionId = transactionId;
+    }
+
+    public int getDealerId() {
+        return dealerId;
+    }
+
+    public void setDealerId(int dealerId) {
+        this.dealerId = dealerId;
+    }
+
+    public int getCropId() {
+        return cropId;
+    }
+
+    public void setCropId(int cropId) {
+        this.cropId = cropId;
+    }
+
+    public BigDecimal getAmount() {
+        return amount;
+    }
+
+    public void setAmount(BigDecimal amount) {
+        this.amount = amount;
+    }
+
+    public Status getStatus() {
+        return status;
+    }
+
+    public void setStatus(Status status) {
+        this.status = status;
+    }
+
+    public LocalDateTime getTime() {
+        return time;
+    }
+
+    public void setTime(LocalDateTime time) {
+        this.time = time;
+    }
+
+    // Optional: Override toString, equals, and hashCode
+
+    @Override
+    public String toString() {
+        return "Payment{" +
+                "transactionId=" + transactionId +
+                ", dealerId=" + dealerId +
+                ", cropId=" + cropId +
+                ", amount=" + amount +
+                ", status=" + status +
+                ", time=" + time +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Payment)) return false;
+        Payment payment = (Payment) o;
+        return transactionId == payment.transactionId;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(transactionId);
+    }
+
+    // Enum for status
+    public enum Status {
+        PENDING,
+        SUCCESS,
+        FAILED
+    }
+}

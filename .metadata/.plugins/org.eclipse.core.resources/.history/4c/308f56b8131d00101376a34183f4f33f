@@ -1,0 +1,129 @@
+package com.payment.service;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Optional;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
+
+import com.payment.feign.PaymentCropInterface;
+import com.payment.feign.PaymentDealerInterface;
+import com.payment.feign.PaymentFarmerInterface;
+import com.payment.model.BookingDto;
+import com.payment.model.CropDto;
+import com.payment.model.DealerDto;
+import com.payment.model.FarmerDto;
+import com.payment.model.Payment;
+import com.payment.model.Receipt;
+import com.payment.repo.PaymentRepo;
+
+@Service
+public class PaymentService {
+
+	@Autowired
+	private PaymentRepo paymentRepo;
+
+	@Autowired
+	PaymentDealerInterface dealer_interface;
+
+	@Autowired
+	PaymentFarmerInterface farmer_interface;
+
+	@Autowired
+	PaymentCropInterface crop_interface;
+
+	public ResponseEntity<String> makePayment(Payment payment) {
+
+		Payment saved = paymentRepo.save(payment);
+		if (saved != null) {
+			return new ResponseEntity<>("payment done and saved", HttpStatus.CREATED);
+		}
+		return new ResponseEntity<>("payment not saved", HttpStatus.INTERNAL_SERVER_ERROR);
+	}
+
+	public ResponseEntity<List<Payment>> allPayments() {
+
+		try {
+			return new ResponseEntity<>(paymentRepo.findAll(), HttpStatus.OK);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		return new ResponseEntity<>(new ArrayList<>(), HttpStatus.NOT_FOUND);
+	}
+
+	public ResponseEntity<Payment> getPaymentById(int id) {
+		try {
+			Optional<Payment> payment = paymentRepo.findById(id);
+			return new ResponseEntity<>(payment.get(), HttpStatus.OK);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+
+	}
+
+	public ResponseEntity<List<Payment>> forFarmerPayments(int farmer_id) {
+		try {
+			return new ResponseEntity<>(paymentRepo.findForFarmer(farmer_id), HttpStatus.OK);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		return new ResponseEntity<>(new ArrayList<>(), HttpStatus.NOT_FOUND);
+	}
+
+	public ResponseEntity<List<Payment>> forDealerPayments(int dealer_id) {
+		try {
+			return new ResponseEntity<>(paymentRepo.findForDealer(dealer_id), HttpStatus.OK);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		return new ResponseEntity<>(new ArrayList<>(), HttpStatus.NOT_FOUND);
+	}
+
+	public ResponseEntity<Double> getAmountToBePaid(int book_id) {
+		BookingDto booking = dealer_interface.getBookDetails(book_id).getBody().get();
+
+		if (booking == null) {
+			return new ResponseEntity<>(0.0, HttpStatus.NOT_FOUND);
+		}
+
+		return new ResponseEntity<>(booking.getAmount(), HttpStatus.OK);
+	}
+
+	public ResponseEntity<Receipt> getReceipt(Integer paymentId) {
+		Payment payment = paymentRepo.findById(paymentId).orElseThrow(() -> new RuntimeException("Payment not found"));
+		CropDto crop;
+		FarmerDto farmer;
+		DealerDto dealer;
+
+		try {
+			crop = crop_interface.getCropDetailsById(payment.getCropId()).getBody().get();
+			farmer = farmer_interface.getFarmerProfileById(payment.getFarmerId()).getBody().get();
+			dealer = dealer_interface.getDealerProfileById(payment.getDealerId()).getBody().get();
+		} catch (NoSuchElementException e) {
+			return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+		}
+
+		Receipt receipt = new Receipt();
+		receipt.setPaymentId(paymentId);
+		receipt.setDealerId(payment.getDealerId());
+		receipt.setFarmerId(payment.getFarmerId());
+		receipt.setCropId(payment.getCropId());
+		receipt.setAmount(payment.getAmount());
+		receipt.setPaidAt(payment.getPaidAt());
+		receipt.setFarmerName(farmer.getFirst_name() + " " + farmer.getLast_name());
+		receipt.setDealerName(dealer.getFirst_name() + " " + dealer.getLast_name());
+		receipt.setCropName(crop.getCrop_name());
+		receipt.setQuantity(payment.getAmount() / crop.getPrice_per_kg());
+
+		return ResponseEntity.ok(receipt);
+	}
+
+}

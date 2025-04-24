@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Encapsulate field &apos;com.farmer.model.CropDto.crop_id&apos; in &apos;com.farmer.model.CropDto&apos;&#x0D;&#x0A;- Original project: &apos;FarmerService&apos;&#x0D;&#x0A;- Original element: &apos;com.farmer.model.CropDto.crop_id&apos;&#x0D;&#x0A;- Getter method name: &apos;getCrop_id&apos;&#x0D;&#x0A;- Setter method name: &apos;setCrop_id&apos;&#x0D;&#x0A;- Field visibility: &apos;public&apos;&#x0D;&#x0A;- Use getter and setter methods in declaring type" comments="false" declaring="true" description="Encapsulate field &apos;crop_id, ...&apos;" flags="589830" getter="getCrop_id" id="org.eclipse.jdt.ui.self.encapsulate" input="/src\/main\/java=/optional=/true=/=/maven.pomderived=/true=/&lt;com.farmer.model{CropDto.java[CropDto^crop_id" insertion="11" setter="setCrop_id" stamp="1744554457062" version="1.0" visibility="1"/>
+</session>

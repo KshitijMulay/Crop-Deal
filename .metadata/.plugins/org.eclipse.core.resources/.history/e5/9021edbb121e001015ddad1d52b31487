@@ -1,0 +1,5 @@
+@FeignClient(name = "DEALERSERVICE")
+public interface DealerClient {
+    @GetMapping("/dealer/emails")
+    List<String> getAllDealerEmails();
+}

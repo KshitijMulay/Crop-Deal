@@ -1,0 +1,5 @@
+package com.farmer.feign;
+
+public interface notificationInterface {
+
+}

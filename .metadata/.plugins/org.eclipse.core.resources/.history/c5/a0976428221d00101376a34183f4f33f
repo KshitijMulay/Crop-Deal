@@ -1,0 +1,7 @@
+package com.dealer.feign;
+
+
+
+public interface PaymentInterface {
+
+}

@@ -1,0 +1,36 @@
+package com.payment.service;
+
+import com.payment.model.Transaction;
+import com.payment.repo.TransactionRepo;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
+
+@Service
+public class PaymentService {
+
+    @Autowired
+    private PaymentRepo transactionRepo;
+
+    public Transaction makePayment(int bookingId, int dealerId, int cropId, double amount) {
+        Transaction tx = new Transaction();
+        tx.setBookingId(bookingId);
+        tx.setDealerId(dealerId);
+        tx.setCropId(cropId);
+        tx.setAmount(amount);
+        tx.setStatus("SUCCESS");
+        tx.setTime(LocalDateTime.now());
+        return transactionRepo.save(tx);
+    }
+
+    public Optional<Transaction> getTransactionById(int id) {
+        return transactionRepo.findById(id);
+    }
+
+    public List<Transaction> getTransactionsByDealer(int dealerId) {
+        return transactionRepo.findByDealerId(dealerId);
+    }
+}

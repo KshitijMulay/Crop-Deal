@@ -1,0 +1,6 @@
+package com.farmer.model;
+
+public class NotificationDto {
+
+	
+}
