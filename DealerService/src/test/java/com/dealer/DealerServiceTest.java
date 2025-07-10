@@ -10,6 +10,7 @@ import static org.mockito.Mockito.when;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -20,7 +21,7 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
-import com.dealer.feign.DealerInterface;
+import com.dealer.feign.CropInterface;
 import com.dealer.model.BankDetails;
 import com.dealer.model.Booking;
 import com.dealer.model.CropWrapper;
@@ -45,7 +46,7 @@ public class DealerServiceTest {
 	private BookingRepo bookingRepo;
 
 	@Mock
-	private DealerInterface dealerInterface;
+	private CropInterface dealerInterface;
 
 	@BeforeEach
 	void setup() {
@@ -89,7 +90,7 @@ public class DealerServiceTest {
 	void testEditDealerProfileFound() {
 		Dealer dealer = new Dealer();
 		when(dealerRepo.existsById(1)).thenReturn(true);
-		ResponseEntity<String> response = dealerService.editDealerProfile(1, dealer);
+		ResponseEntity<Map<String, String>> response = dealerService.editDealerProfile(1, dealer);
 		assertEquals(HttpStatus.OK, response.getStatusCode());
 		verify(dealerRepo).save(dealer);
 	}
@@ -98,7 +99,7 @@ public class DealerServiceTest {
 	void testEditDealerProfileNotFound() {
 		Dealer dealer = new Dealer();
 		when(dealerRepo.existsById(1)).thenReturn(false);
-		ResponseEntity<String> response = dealerService.editDealerProfile(1, dealer);
+		ResponseEntity<Map<String, String>> response = dealerService.editDealerProfile(1, dealer);
 		assertEquals("Dealer not found", response.getBody());
 	}
 
@@ -109,14 +110,14 @@ public class DealerServiceTest {
 		when(dealerRepo.findById(1)).thenReturn(Optional.of(dealer));
 		when(bankRepo.save(bankDetails)).thenReturn(bankDetails);
 
-		ResponseEntity<String> response = dealerService.addBankDetails(1, bankDetails);
+		ResponseEntity<Map<String, String>> response = dealerService.addBankDetails(1, bankDetails);
 		assertEquals(HttpStatus.OK, response.getStatusCode());
 	}
 
 	@Test
 	void testAddBankDetailsDealerNotFound() {
 		when(dealerRepo.findById(1)).thenReturn(Optional.empty());
-		ResponseEntity<String> response = dealerService.addBankDetails(1, new BankDetails());
+		ResponseEntity<Map<String, String>> response = dealerService.addBankDetails(1, new BankDetails());
 		assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
 	}
 
@@ -129,7 +130,7 @@ public class DealerServiceTest {
 
 		when(dealerRepo.findById(1)).thenReturn(Optional.of(dealer));
 
-		ResponseEntity<String> response = dealerService.updateBankDetails(1, newDetails);
+		ResponseEntity<Map<String, String>> response = dealerService.updateBankDetails(1, newDetails);
 		assertEquals(HttpStatus.OK, response.getStatusCode());
 		verify(bankRepo).save(oldDetails);
 	}
@@ -140,7 +141,7 @@ public class DealerServiceTest {
 		dealer.setBankDetails(null);
 		when(dealerRepo.findById(1)).thenReturn(Optional.of(dealer));
 
-		ResponseEntity<String> response = dealerService.updateBankDetails(1, new BankDetails());
+		ResponseEntity<Map<String, String>> response = dealerService.updateBankDetails(1, new BankDetails());
 		assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
 	}
 

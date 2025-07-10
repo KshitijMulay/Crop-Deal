@@ -1,5 +1,0 @@
-package com.dealer.repo;
-
-public inface paymentRepo {
-
-}

@@ -10,40 +10,51 @@ import org.springframework.stereotype.Service;
 import com.admin.feign.AdminCropInterface;
 import com.admin.feign.AdminDealerInterface;
 import com.admin.feign.AdminFarmerInterface;
+import com.admin.feign.AdminNotificationInterface;
 import com.admin.model.CropDto;
 import com.admin.model.DealerDto;
 import com.admin.model.FarmerDto;
+import com.admin.model.NotificationDto;
 import com.admin.model.ReviewDto;
+
+import feign.FeignException;
 
 @Service
 public class AdminService {
 
 	@Autowired
-	AdminFarmerInterface farmer_interface;
+	AdminFarmerInterface farmerInterface;
 
 	@Autowired
 	AdminDealerInterface dealer_interface;
 
 	@Autowired
 	AdminCropInterface crop_interface;
+	
+	@Autowired
+	AdminNotificationInterface adminNotificationInterface;
 
 //	farmer
 
 	public ResponseEntity<List<FarmerDto>> getAllFarmers() {
 
-		return farmer_interface.getAllFarmers();
+		return farmerInterface.getAllFarmers();
 	}
-
-	public ResponseEntity<Optional<FarmerDto>> getFarmerProfileDetailsById(int id) {
-		return farmer_interface.getFarmerProfileById(id);
-	}
+	
+	public FarmerDto getFarmerProfileDetailsById(int id) {
+        try {
+            return farmerInterface.getFarmerProfileById(id);
+        } catch (FeignException.NotFound e) {
+            throw new RuntimeException("Farmer not found with ID: " + id);
+        }
+    }
 
 	public ResponseEntity<String> editFarmerProfile(int id, FarmerDto farmer) {
-		return farmer_interface.editProfileOfFarmer(id, farmer);
+		return farmerInterface.editProfileOfFarmer(id, farmer);
 	}
 
 	public ResponseEntity<String> deleteFarmerById(int id) {
-		return farmer_interface.deleteFarmer(id);
+		return farmerInterface.deleteFarmer(id);
 	}
 
 //	dealer
@@ -80,6 +91,10 @@ public class AdminService {
 
 	public ResponseEntity<String> deleteReview(int review_id) {
 		return crop_interface.deleteReview(review_id);
+	}
+	
+	public ResponseEntity<List<NotificationDto>> allnotifications() {
+		return adminNotificationInterface.allnotifications();
 	}
 
 }

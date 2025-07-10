@@ -7,5 +7,6 @@ import com.dealer.model.Dealer;
 
 @Repository
 public interface DealerRepo extends JpaRepository<Dealer, Integer> {
+	Dealer findByEmail(String email);
 
 }

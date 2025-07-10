@@ -1,9 +1,0 @@
-package com.payment.repo;
-
-import com.payment.model.Transaction;
-import org.springframework.data.jpa.repository.JpaRepository;
-import java.util.List;
-
-public interface PaymentRepo extends JpaRepository<Transaction, Integer> {
-    List<payment> findByDealerId(int dealerId);
-}

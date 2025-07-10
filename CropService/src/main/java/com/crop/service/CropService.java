@@ -41,12 +41,21 @@ public class CropService {
 		}
 		return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
 	}
+	
+	public ResponseEntity<List<Crop>> getCropDetailsByName(String name) {
+		try {
+			return new ResponseEntity<>(cropRepo.findByCropName(name), HttpStatus.OK);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return new ResponseEntity<>(new ArrayList<>(), HttpStatus.BAD_REQUEST);
+	}
 
 	public ResponseEntity<String> publishCrop(Crop crop) {
 		crop.setTotalAvailableCost(crop.getQuantityAvailable() * crop.getPricePerKg());
 		crop.setTotalBookedCost(crop.getQuantityBooked() * crop.getPricePerKg());
 		cropRepo.save(crop);
-		return new ResponseEntity<>("Crop registered successfully", HttpStatus.CREATED);
+		return new ResponseEntity<>("Crop registered successfully and mail sent to all dealers", HttpStatus.CREATED);
 	}
 
 	public ResponseEntity<String> editCrop(int id, Crop crop) {
@@ -172,10 +181,21 @@ public class CropService {
 		}
 		return new ResponseEntity<>(new ArrayList<>(), HttpStatus.BAD_REQUEST);
 	}
+	
+	public ResponseEntity<List<RatingsAndReviews>> allReviewsByCropName(String crop_name) {
+		try {
+			return new ResponseEntity<>(reviewRepo.findAllByCropName(crop_name), HttpStatus.OK);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return new ResponseEntity<>(new ArrayList<>(), HttpStatus.BAD_REQUEST);
+	}
 
 	public ResponseEntity<String> postReview(int dealerId, int crop_id, RatingsAndReviews review) {
 		review.setCropId(crop_id);
 		review.setDealerId(dealerId);
+		System.out.println(review.getComment());
+		review.setComment(review.getComment());
 		if (review.getRating() > 5)
 			review.setRating(5);
 
@@ -184,7 +204,7 @@ public class CropService {
 
 		RatingsAndReviews saved = reviewRepo.save(review);
 		if (saved != null)
-			return new ResponseEntity<>("review posted successfully", HttpStatus.CREATED);
+			return new ResponseEntity<>("From Dealer ID " + dealerId + " to Crop ID " + crop_id + " your this review [" + review.getComment() + "] is posted successfully !!!", HttpStatus.CREATED);
 
 		return new ResponseEntity<>("Not able to post review", HttpStatus.INTERNAL_SERVER_ERROR);
 	}
@@ -220,18 +240,26 @@ public class CropService {
 	}
 
 	public ResponseEntity<String> getAverage(int crop_id) {
-		List<RatingsAndReviews> reviewList = reviewRepo.findAllByCropId(crop_id);
-		double total = 0;
-		double average = 0;
+	    List<RatingsAndReviews> reviewList = reviewRepo.findAllByCropId(crop_id);
+	    Optional<Crop> cropname = cropRepo.findById(crop_id); // fetch crop
 
-		if (!reviewList.isEmpty()) {
-			for (RatingsAndReviews r : reviewList) {
-				total += r.getRating();
-			}
-			average = total / reviewList.size();
-			return new ResponseEntity<>("Average rating is : " + average, HttpStatus.OK);
-		}
-		return new ResponseEntity<>("Crop not found", HttpStatus.NOT_FOUND);
+	    if (!cropname.isPresent()) {
+	        return new ResponseEntity<>("Crop not found", HttpStatus.NOT_FOUND);
+	    }
+
+	    Crop crop = cropname.get();
+	    double total = 0;
+	    double average = 0;
+
+	    if (!reviewList.isEmpty()) {
+	        for (RatingsAndReviews r : reviewList) {
+	            total += r.getRating();
+	        }
+	        average = total / reviewList.size();
+	        return new ResponseEntity<>("Average rating for crop '" + crop.getCropName() + "' is: " + average, HttpStatus.OK);
+	    }
+
+	    return new ResponseEntity<>("No reviews found for crop '" + crop.getCropName() + "'", HttpStatus.NOT_FOUND);
 	}
 
 }

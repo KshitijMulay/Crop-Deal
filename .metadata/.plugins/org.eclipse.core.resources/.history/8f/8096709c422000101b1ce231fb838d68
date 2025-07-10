@@ -1,5 +1,0 @@
-package com.notify.config;
-
-public class RabbitConfig {
-
-}

@@ -56,6 +56,28 @@ public class PaymentService {
 		return order.toString();
 
 	}
+	
+//	public Map<String, Object> createRazorpayOrder(Payment payment) throws RazorpayException {
+//	    RazorpayClient razorpayClient = new RazorpayClient(apiKey, apiSecret);
+//
+//	    JSONObject orderRequest = new JSONObject();
+//	    orderRequest.put("amount", payment.getAmount() * 100); // Razorpay accepts amount in paise
+//	    orderRequest.put("currency", "INR");
+//	    orderRequest.put("receipt", "CropId" + payment.getCropId() + payment.getDealerId());
+//
+//	    Order order = razorpayClient.orders.create(orderRequest);
+//
+//	    Map<String, Object> response = new HashMap<>();
+//	    response.put("orderId", order.get("id"));
+//	    response.put("amount", order.get("amount"));
+//	    response.put("currency", order.get("currency"));
+//	    response.put("key", apiKey); // Needed in frontend Razorpay config
+//	    response.put("dealerId", payment.getDealerId());
+//	    response.put("cropId", payment.getCropId());
+//
+//	    return response;
+//	}
+
 
 	public Optional<Payment> getPaymentById(int id) {
 		return paymentRepo.findById(id);

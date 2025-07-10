@@ -16,4 +16,6 @@ public interface CropRepo extends JpaRepository<Crop, Integer> {
 
 	List<Crop> findByQuantityAvailableEquals(double quantity);
 
+	List<Crop> findByCropName(String name);
+
 }

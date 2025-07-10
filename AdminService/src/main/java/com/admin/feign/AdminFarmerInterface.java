@@ -1,7 +1,6 @@
 package com.admin.feign;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.ResponseEntity;
@@ -20,7 +19,7 @@ public interface AdminFarmerInterface {
 	public ResponseEntity<List<FarmerDto>> getAllFarmers();
 
 	@GetMapping("/farmer/profile/{id}")
-	public ResponseEntity<Optional<FarmerDto>> getFarmerProfileById(@PathVariable int id);
+    public FarmerDto getFarmerProfileById(@PathVariable int id);
 
 	@PutMapping("/farmer/profile/edit/{id}")
 	public ResponseEntity<String> editProfileOfFarmer(@PathVariable int id, @RequestBody FarmerDto farmer);

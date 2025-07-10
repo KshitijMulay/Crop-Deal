@@ -1,5 +1,0 @@
-package com.notify.feign;
-
-public class DealerInterface {
-
-}

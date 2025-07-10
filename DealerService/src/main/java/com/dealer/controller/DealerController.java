@@ -1,6 +1,8 @@
 package com.dealer.controller;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -21,8 +23,11 @@ import com.dealer.model.Booking;
 import com.dealer.model.CropWrapper;
 import com.dealer.model.Dealer;
 import com.dealer.model.PaymentWrapper;
+import com.dealer.model.RatingsAndReviewsDTO;
 import com.dealer.repo.DealerRepo;
 import com.dealer.service.DealerService;
+
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 
 @RestController
 @RequestMapping("/dealer")
@@ -68,41 +73,53 @@ public class DealerController {
 	public ResponseEntity<Optional<Dealer>> getDealerProfileById(@PathVariable int id) {
 		return dealerService.getDealerProfileDetailsById(id);
 	}
+	
+	@GetMapping("/profile/email/{email}")
+	public ResponseEntity<Dealer> getDealerByEmail(@PathVariable String email) {
+	    return dealerService.getDealerByEmail(email);
+	}
+
 
 	// 5
 	@PutMapping("/profile/edit/{id}")
-	public ResponseEntity<String> editProfileOfDealer(@PathVariable int id, @RequestBody Dealer dealer) {
+	public ResponseEntity<Map<String, String>> editProfileOfDealer(@PathVariable int id, @RequestBody Dealer dealer) {
 		System.out.println("called");
 		return dealerService.editDealerProfile(id, dealer);
 	}
 
 	// 6
 	@PostMapping("/{id}/add-bank-details")
-	public ResponseEntity<String> addBankDetails(@PathVariable int id, @RequestBody BankDetails bankDetails) {
+	public ResponseEntity<Map<String, String>> addBankDetails(@PathVariable int id, @RequestBody BankDetails bankDetails) {
 		return dealerService.addBankDetails(id, bankDetails);
 	}
 
 	// 7
 	@PutMapping("/{id}/update-bank-details")
-	public ResponseEntity<String> updateBankDetails(@PathVariable int id, @RequestBody BankDetails newDetails) {
+	public ResponseEntity<Map<String, String>> updateBankDetails(@PathVariable int id, @RequestBody BankDetails newDetails) {
 		return dealerService.updateBankDetails(id, newDetails);
 	}
 
 	// get details by id - pending
+	
+	@GetMapping("/allCrops")
+	@CircuitBreaker(name = "dealerInterface", fallbackMethod = "fallbackGetAllCrops")
+	public ResponseEntity<List<CropWrapper>> getAllCrops() {
+		return dealerService.getAllCrops();
+	}
 
 	@PostMapping("/book")
 	public ResponseEntity<String> bookCrop(@RequestBody Booking booking) {
 		return dealerService.bookCrop(booking.getCropId(), booking.getDealerId(), booking.getQuantity());
 	}
 
+	@PostMapping("/pay")
+	public ResponseEntity<String> pay(@RequestBody PaymentWrapper payment) {
+		return dealerService.pay(payment);
+	}
+
 	@PostMapping("/cancel")
 	public ResponseEntity<String> cancelBooking(@RequestBody Booking booking) {
 		return dealerService.cancelCropBooking(booking.getCropId(), booking.getDealerId(), booking.getQuantity());
-	}
-
-	@GetMapping("/allCrops")
-	public ResponseEntity<List<CropWrapper>> getAllCrops() {
-		return dealerService.getAllCrops();
 	}
 
 	@GetMapping("/{dealerId}/bookings")
@@ -115,9 +132,34 @@ public class DealerController {
 		return ResponseEntity.ok(dealerService.getBookedCropDetails());
 	}
 
-	@PostMapping("/pay")
-	public ResponseEntity<String> pay(@RequestBody PaymentWrapper payment) {
-		return dealerService.pay(payment);
+	@GetMapping("crop/status/{cropId}")
+	public ResponseEntity<String> getCropStatus(@PathVariable int cropId) {
+		return dealerService.getCropStatus(cropId);
+	}
+
+	@GetMapping("crop/available")
+	public ResponseEntity<List<CropWrapper>> getAvailableCrops() {
+		return dealerService.getAvailableCrops();
+	}
+
+	@GetMapping("crop/booked")
+	public ResponseEntity<List<CropWrapper>> getFullyBookedCrops() {
+		return dealerService.getFullyBookedCrops();
+	}
+
+	@GetMapping("crop/reviews")
+	public ResponseEntity<List<RatingsAndReviewsDTO>> allReviews() {
+		return dealerService.allReviews();
+	}
+
+	@GetMapping("crop/reviews/{crop_id}")
+	public ResponseEntity<List<RatingsAndReviewsDTO>> allReviewsByCropId(@PathVariable int crop_id) {
+		return dealerService.allReviewsByCropId(crop_id);
+	}
+
+	@GetMapping("crop/review/average-rating/{crop_id}")
+	public ResponseEntity<String> getAverage(@PathVariable int crop_id) {
+		return dealerService.getAverage(crop_id);
 	}
 
 	@GetMapping("/emails")
@@ -125,11 +167,15 @@ public class DealerController {
 		List<String> emails = dealerRepo.findAll().stream().map(Dealer::getEmail).collect(Collectors.toList());
 		return ResponseEntity.ok(emails);
 	}
-	
+
 	@GetMapping("/export")
 	public ResponseEntity<ByteArrayResource> exportDealerReport() {
-	    return dealerService.exportDealerReport();
+		return dealerService.exportDealerReport();
 	}
-
+	
+	public ResponseEntity<List<CropWrapper>> fallbackGetAllCrops(Exception e) {
+		System.out.println("Fallback triggered due to: " + e.getMessage());
+		return ResponseEntity.ok(new ArrayList<>());
+	}
 
 }

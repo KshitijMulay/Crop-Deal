@@ -18,8 +18,7 @@ public class PaymentController {
 
 	@PostMapping("/pay")
 	public Payment pay(@RequestBody Payment payment) {
-		System.out.println(
-				"Saving new payment: " + payment.getAmount() + " " + payment.getCropId() + " " + payment.getDealerId());
+		System.out.println("Saving new payment: " + payment.getAmount() + " " + payment.getCropId() + " " + payment.getDealerId());
 		return paymentService.makePayment(payment);
 	}
 
@@ -33,5 +32,16 @@ public class PaymentController {
 	public ResponseEntity<List<Payment>> getPaymentsByDealer(@PathVariable int dealerId) {
 		return ResponseEntity.ok(paymentService.getPaymentsByDealer(dealerId));
 	}
+	
+//	@PostMapping("/create-order")
+//	public ResponseEntity<?> createOrder(@RequestBody Payment payment) {
+//	    try {
+//	        return ResponseEntity.ok(paymentService.createRazorpayOrder(payment));
+//	    } catch (Exception e) {
+//	        return ResponseEntity.internalServerError().body("Order creation failed: " + e.getMessage());
+//	    }
+//	}
+	
+	
 
 }

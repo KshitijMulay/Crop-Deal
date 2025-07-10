@@ -1,18 +1,22 @@
 package com.notify.consumer;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
 import com.notify.config.RabbitConfig;
 import com.notify.feign.DealerInterface;
 import com.notify.model.CropDto;
+import com.notify.model.Notification;
 import com.notify.model.NotificationPayload;
+import com.notify.repo.NotificationRepo;
 
 import org.springframework.mail.javamail.JavaMailSender;
 
@@ -32,6 +36,9 @@ public class UserConsumer {
 	@Autowired
 	DealerInterface dealerInterface;
 
+	@Autowired
+	NotificationRepo notificationRepo;
+
 	@RabbitListener(queues = RabbitConfig.QUEUE)
 	public void consumeMessageFromQueue(CropDto crop) {
 
@@ -46,19 +53,31 @@ public class UserConsumer {
 //			    "Available Qty   : " + crop.getQuantityAvailable() + " KG\n" +
 //			    "Price per KG    : ₹" + crop.getPricePerKg() + "\n\n" +
 //			    "Check the app/website for more details.";
+
+		String message = "<h2>📢 New Crop Published !!!</h2>" + "<p><strong>🌾 Crop Name:</strong> "
+				+ crop.getCropName() + "</p>" + "<p><strong>🌱 Crop Type:</strong> " + crop.getCropType() + "</p>"
+				+ "<p><strong>📦 Available Quantity:</strong> " + crop.getQuantityAvailable() + " KG</p>"
+				+ "<p><strong>💰 Price per KG:</strong> ₹" + crop.getPricePerKg() + "</p>"
+				+ "<br><p>👉 Check the <a href='https://github.com/KshitijMulay/Crop-Deal'>Github</a> for more details.</p>";
 		
-		String message = "<h2>📢 New Crop Published !!!</h2>" +
-                "<p><strong>🌾 Crop Name:</strong> " + crop.getCropName() + "</p>" +
-                "<p><strong>🌱 Crop Type:</strong> " + crop.getCropType() + "</p>" +
-                "<p><strong>📦 Available Quantity:</strong> " + crop.getQuantityAvailable() + " KG</p>" +
-                "<p><strong>💰 Price per KG:</strong> ₹" + crop.getPricePerKg() + "</p>" +
-                "<br><p>👉 Check the <a href='https://miro.com/app/board/uXjVIDEQ4g8=/'>App/Website</a> for more details.</p>";
+		Notification notification = new Notification();
+		notification.setNotification(message);
+		notification.setTime(LocalDateTime.now());
 
-		List<String> emails = new ArrayList<>();
+		notificationRepo.save(notification);
+
 //		emails.add("kshitijmulay411@gmail.com");
+		
+		List<String> emails;
+		try {
+			emails = dealerInterface.getAllDealerEmails();
+		} catch (Exception e) {
+			System.err.println("Failed to fetch dealer emails: " + e.getMessage());
+			return;
+		}
 
-		 emails=dealerInterface.getAllDealerEmails();
-
+		
+		
 		NotificationPayload payload = new NotificationPayload();
 
 		payload.setSubject("New Crop Published!");
@@ -66,8 +85,11 @@ public class UserConsumer {
 		payload.setBody(message);
 
 		notifyDealers(payload);
+		
+		
 
-		System.out.println("Message recieved from queue : " + crop);
+		System.out.println("Message received from queue and processed: " + crop);
+
 	}
 
 	public ResponseEntity<String> notifyDealers(NotificationPayload payload) {
@@ -83,10 +105,21 @@ public class UserConsumer {
 			}
 
 			mailSender.send(message);
+
 			return ResponseEntity.ok("Notification sent to all dealers");
 		} catch (MessagingException e) {
 			return ResponseEntity.status(500).body("Failed to send notification: " + e.getMessage());
 		}
 	}
+
+	public ResponseEntity<List<Notification>> allnotifications() {
+	    List<Notification> notify = notificationRepo.findAll();
+	    if (notify.isEmpty()) {
+	        return new ResponseEntity<>(notify, HttpStatus.NO_CONTENT);
+	    } else {
+	        return new ResponseEntity<>(notify, HttpStatus.OK);
+	    }
+	}
+
 
 }

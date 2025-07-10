@@ -14,8 +14,10 @@ public class SwaggerConfig {
 
 	@Bean
 	public OpenAPI myconfig() {
-		return new OpenAPI().info(new Info().title("This is Crop Service from CropDeal Project").description("By Kshitij"))
-				.servers(Arrays.asList(new Server().url("http://localhost:8085").description("Crop Service"), new Server().url("http://localhost:8070").description("Dealer Service")));
+
+		return new OpenAPI().info(new Info().title("🌱🌿Crop Service from CropDeal🌿🌱").description("By Kshitij"))
+				.servers(Arrays.asList(new Server().url("http://localhost:8085").description("Crop Service"),
+						new Server().url("http://localhost:8070").description("Dealer Service")));
 	}
-	
+
 }

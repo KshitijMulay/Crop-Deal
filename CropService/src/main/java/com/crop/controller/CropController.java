@@ -60,6 +60,11 @@ public class CropController {
 		return cropService.getCropDetailsById(id);
 	}
 
+	@GetMapping("/name/{name}")
+	public ResponseEntity<List<Crop>> getCropProfileByName(@PathVariable String name) {
+		return cropService.getCropDetailsByName(name);
+	}
+
 	// 3
 
 	// 4
@@ -92,50 +97,62 @@ public class CropController {
 		return cropService.cancelCropBooking(id, quantity);
 	}
 
+	// 9
 	@GetMapping("/farmer/{farmerId}")
 	public ResponseEntity<List<Crop>> getCropsByFarmer(@PathVariable int farmerId) {
 		return cropService.getCropsByFarmer(farmerId);
 	}
 
-	@GetMapping("/available")
-	public ResponseEntity<List<Crop>> getAvailableCrops() {
-		return cropService.getAvailableCrops();
-	}
-
-	@GetMapping("/booked")
-	public ResponseEntity<List<Crop>> getFullyBookedCrops() {
-		return cropService.getFullyBookedCrops();
-	}
-
+	//both farmer and dealer
 	@GetMapping("/status/{cropId}")
 	public ResponseEntity<String> getCropStatus(@PathVariable int cropId) {
 		return cropService.getCropStatus(cropId);
 	}
 
+	//both farmer and dealer
+	@GetMapping("/available")
+	public ResponseEntity<List<Crop>> getAvailableCrops() {
+		return cropService.getAvailableCrops();
+	}
+
+	//both farmer and dealer
+	@GetMapping("/booked")
+	public ResponseEntity<List<Crop>> getFullyBookedCrops() {
+		return cropService.getFullyBookedCrops();
+	}
+
+	//both farmer and dealer
 	@GetMapping("/reviews")
 	public ResponseEntity<List<RatingsAndReviews>> allReviews() {
 		return cropService.allReviews();
 	}
 
-	@GetMapping("/reviews/{crop_id}")
+	//both farmer and dealer
+	@GetMapping("/reviews/id/{crop_id}")
 	public ResponseEntity<List<RatingsAndReviews>> allReviewsByCropId(@PathVariable int crop_id) {
 		return cropService.allReviewsByCropId(crop_id);
+	}
+	
+	@GetMapping("/reviews/{crop_name}")
+	public ResponseEntity<List<RatingsAndReviews>> allReviewsByCropName(@PathVariable String crop_name) {
+		return cropService.allReviewsByCropName(crop_name);
+	}
+
+	//both farmer and dealer
+	@GetMapping("/review/average-rating/{crop_id}")
+	public ResponseEntity<String> getAverage(@PathVariable("crop_id") int crop_id) {
+		return cropService.getAverage(crop_id);
+	}
+	
+	@DeleteMapping("/review/delete/{review_id}")
+	public ResponseEntity<String> deleteReview(@PathVariable("review_id") int review_id) {
+		return cropService.deleteReview(review_id);
 	}
 
 	@PostMapping("/review/post/{crop_id}")
 	public ResponseEntity<String> postReview(@RequestParam("dealer_id") int dealerId,
 			@PathVariable("crop_id") int crop_id, @RequestBody RatingsAndReviews review) {
 		return cropService.postReview(dealerId, crop_id, review);
-	}
-
-	@DeleteMapping("/review/delete/{review_id}")
-	public ResponseEntity<String> deleteReview(@PathVariable("review_id") int review_id) {
-		return cropService.deleteReview(review_id);
-	}
-
-	@GetMapping("/review/average-rating/{crop_id}")
-	public ResponseEntity<String> getAverage(@PathVariable("crop_id") int crop_id) {
-		return cropService.getAverage(crop_id);
 	}
 
 }

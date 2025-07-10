@@ -2,116 +2,49 @@ package com.admin.model;
 
 import java.time.LocalDateTime;
 
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class CropDto {
-	private int crop_id;
-	private int farmer_id;
-	private String crop_name;
-	private String crop_type;
-	private Double quantity_in_kg;
-	private Double quantity_available;
-	private Double quantity_booked;
-	private Double price_per_kg;
+
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "crop_id")
+	private int cropId;
+
+	@Column(name = "farmer_id")
+	private int farmerId;
+
+	@Column(name = "crop_name")
+	private String cropName;
+
+	@Column(name = "crop_type")
+	private String cropType;
+
+	@Column(name = "quantity_available")
+	private Double quantityAvailable;
+
+	@Column(name = "price_per_kg")
+	private Double pricePerKg;
+
+	@Column(name = "quantity_booked")
+	private Double quantityBooked;
+
+	@Column(name = "status")
 	private String status;
-	private LocalDateTime postedAt;
 
-	public int getCrop_id() {
-		return crop_id;
-	}
+	@Column(name = "posted_at")
+	private LocalDateTime postedAt = LocalDateTime.now();
 
-	public void setCrop_id(int crop_id) {
-		this.crop_id = crop_id;
-	}
+	@Column(name = "total_available_cost")
+	private Double totalAvailableCost;
 
-	public int getFarmer_id() {
-		return farmer_id;
-	}
-
-	public void setFarmer_id(int farmer_id) {
-		this.farmer_id = farmer_id;
-	}
-
-	public String getCrop_name() {
-		return crop_name;
-	}
-
-	public void setCrop_name(String crop_name) {
-		this.crop_name = crop_name;
-	}
-
-	public String getCrop_type() {
-		return crop_type;
-	}
-
-	public void setCrop_type(String crop_type) {
-		this.crop_type = crop_type;
-	}
-
-	public Double getQuantity_in_kg() {
-		return quantity_in_kg;
-	}
-
-	public void setQuantity_in_kg(Double quantity_in_kg) {
-		this.quantity_in_kg = quantity_in_kg;
-	}
-
-	public Double getQuantity_available() {
-		return quantity_available;
-	}
-
-	public void setQuantity_available(Double quantity_available) {
-		this.quantity_available = quantity_available;
-	}
-
-	public Double getQuantity_booked() {
-		return quantity_booked;
-	}
-
-	public void setQuantity_booked(Double quantity_booked) {
-		this.quantity_booked = quantity_booked;
-	}
-
-	public Double getPrice_per_kg() {
-		return price_per_kg;
-	}
-
-	public void setPrice_per_kg(Double price_per_kg) {
-		this.price_per_kg = price_per_kg;
-	}
-
-	public String getStatus() {
-		return status;
-	}
-
-	public void setStatus(String status) {
-		this.status = status;
-	}
-
-	public LocalDateTime getPostedAt() {
-		return postedAt;
-	}
-
-	public void setPostedAt(LocalDateTime postedAt) {
-		this.postedAt = postedAt;
-	}
-
-	public CropDto(int crop_id, int farmer_id, String crop_name, String crop_type, Double quantity_in_kg,
-			Double quantity_available, Double quantity_booked, Double price_per_kg, String status,
-			LocalDateTime postedAt) {
-		super();
-		this.crop_id = crop_id;
-		this.farmer_id = farmer_id;
-		this.crop_name = crop_name;
-		this.crop_type = crop_type;
-		this.quantity_in_kg = quantity_in_kg;
-		this.quantity_available = quantity_available;
-		this.quantity_booked = quantity_booked;
-		this.price_per_kg = price_per_kg;
-		this.status = status;
-		this.postedAt = postedAt;
-	}
-
-	public CropDto() {
-
-	}
+	@Column(name = "total_booked_cost")
+	private Double totalBookedCost;
 
 }

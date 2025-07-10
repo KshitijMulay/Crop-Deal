@@ -26,7 +26,7 @@ public class JwtAuthFilter implements GlobalFilter {
 	public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
 		ServerHttpRequest request = exchange.getRequest();
 
-		if (request.getURI().getPath().contains("/login") || request.getURI().getPath().contains("-register")) {
+		if (request.getURI().getPath().contains("/login") || request.getURI().getPath().contains("-register") || request.getURI().getPath().contains("/crop/allCrops")) {
 			return chain.filter(exchange);
 		}
 
